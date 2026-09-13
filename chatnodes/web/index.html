@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChatNodes</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/theme.css">
+</head>
+<body>
+<svg class="ambient-bg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <filter id="blur-orb" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="85"></feGaussianBlur>
+    </filter>
+    <linearGradient id="orb-a" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3787ff">
+        <animate attributeName="stop-color" values="#3787ff;#8f5cff;#3787ff" dur="12s" repeatCount="indefinite"></animate>
+      </stop>
+      <stop offset="1" stop-color="#d64fff"></stop>
+    </linearGradient>
+    <linearGradient id="orb-b" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff4fa3"></stop>
+      <stop offset="1" stop-color="#ff8a45">
+        <animate attributeName="stop-color" values="#ff8a45;#ff5f8f;#ff8a45" dur="10s" repeatCount="indefinite"></animate>
+      </stop>
+    </linearGradient>
+  </defs>
+  <g filter="url(#blur-orb)" opacity=".42">
+    <circle cx="280" cy="170" r="230" fill="url(#orb-a)">
+      <animateTransform attributeName="transform" type="translate" values="0 0;120 80;0 0" dur="18s" repeatCount="indefinite"></animateTransform>
+    </circle>
+    <circle cx="1320" cy="750" r="280" fill="url(#orb-b)">
+      <animateTransform attributeName="transform" type="translate" values="0 0;-130 -90;0 0" dur="20s" repeatCount="indefinite"></animateTransform>
+    </circle>
+    <circle cx="930" cy="30" r="180" fill="#6a48ff" opacity=".62">
+      <animateTransform attributeName="transform" type="translate" values="0 0;-80 100;0 0" dur="15s" repeatCount="indefinite"></animateTransform>
+    </circle>
+  </g>
+</svg>
+
+<div id="app">
+  <aside id="sidebar">
+    <header id="brand">
+      <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true">
+        <defs>
+          <linearGradient id="brand-gradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#58a6ff"></stop>
+            <stop offset=".48" stop-color="#c35cff"></stop>
+            <stop offset="1" stop-color="#ff8a45"></stop>
+          </linearGradient>
+        </defs>
+        <circle class="logo-orbit" cx="22" cy="22" r="15.5" fill="none" stroke="url(#brand-gradient)" stroke-width="1.5" stroke-dasharray="7 5"></circle>
+        <path d="M15 25.5 21.5 15l7.7 6.1-5.2 8.3Z" fill="url(#brand-gradient)"></path>
+        <circle class="logo-pulse" cx="15" cy="25.5" r="3" fill="#73b5ff"></circle>
+        <circle cx="21.5" cy="15" r="3" fill="#d66bff"></circle>
+        <circle cx="29.2" cy="21.1" r="3" fill="#ff875f"></circle>
+        <circle cx="24" cy="29.4" r="3" fill="#fff"></circle>
+      </svg>
+      <div class="brand-copy">
+        <h1>ChatNodes</h1>
+        <span>Aprende conectando ideas</span>
+      </div>
+      <button id="sidebar-close" class="icon-button" type="button" title="Cerrar menú" aria-label="Cerrar menú">×</button>
+    </header>
+
+    <section class="pane">
+      <div class="pane-head">
+        <span>Proyectos</span>
+        <button id="new-project" class="ghost" title="Nuevo proyecto">+</button>
+      </div>
+      <ul id="projects" class="list"></ul>
+    </section>
+
+    <div id="project-detail" hidden>
+      <section class="pane">
+        <div class="pane-head">
+          <span>Material</span>
+          <button id="add-files" class="ghost" title="Subir archivos">+</button>
+        </div>
+        <ul id="files" class="list compact"></ul>
+        <div id="upload-progress" hidden>
+          <div><span>Subiendo material</span><b>0%</b></div>
+          <i><span></span></i>
+        </div>
+        <button id="use-all-files" class="linkish material-all" title="Volver a incluir todo el material">Usar todo el material en este chat</button>
+        <button id="reveal" class="linkish">Abrir carpeta del proyecto</button>
+      </section>
+
+      <section class="pane">
+        <div class="pane-head">
+          <span>Chats</span>
+          <button id="new-chat" class="ghost" title="Nuevo chat">+</button>
+        </div>
+        <ul id="chats" class="list"></ul>
+        <button id="export-chat" class="linkish">Exportar apuntes (.md)</button>
+        <button id="review-chat" class="linkish">Generar repaso de mis dudas</button>
+      </section>
+
+      <section class="pane study-pane">
+        <div class="pane-head"><span>Modo estudio</span><small>Beta</small></div>
+        <div class="study-shortcuts">
+          <button class="study-shortcut flashcards" type="button" data-study="flashcards">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="3"></rect><path d="M8.5 9h7M8.5 13h4"></path></svg>
+            <span><b>Flashcards</b><small>Memoriza conceptos</small></span>
+          </button>
+          <button class="study-shortcut quiz" type="button" data-study="quiz">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M9.8 9a2.4 2.4 0 0 1 4.6 1c0 1.8-2.4 2-2.4 3.6M12 17h.01"></path></svg>
+            <span><b>Quiz</b><small>Practica al instante</small></span>
+          </button>
+          <button class="study-shortcut exam" type="button" data-study="exam">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path><path d="M9 9h6M9 13h6M9 17h3"></path></svg>
+            <span><b>Examen</b><small>Ponte a prueba</small></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="pane lab-pane">
+        <div class="pane-head"><span>Programación</span><small>Local</small></div>
+        <button id="open-code-lab" class="lab-launch" type="button">
+          <span class="lab-launch-icon">
+            <svg viewBox="0 0 28 28" aria-hidden="true"><path d="m10 8-6 6 6 6M18 8l6 6-6 6M16 5l-4 18"></path></svg>
+          </span>
+          <span><b>Laboratorio de código</b><small>Ejecuta y comprueba ejercicios</small></span>
+          <i aria-hidden="true">→</i>
+        </button>
+      </section>
+
+      <section class="pane">
+        <div class="pane-head"><span>Ajustes</span></div>
+        <label class="field">
+          <span>Modelo</span>
+          <select id="model">
+            <option value="sonnet">Sonnet</option>
+            <option value="opus">Opus</option>
+            <option value="haiku">Haiku</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Instrucciones del proyecto</span>
+          <textarea id="instructions" rows="4" placeholder="Ej.: soy de 2.º de Informática, explícame con ejemplos numéricos."></textarea>
+        </label>
+        <button id="delete-project" class="linkish danger">Eliminar proyecto</button>
+      </section>
+    </div>
+  </aside>
+
+  <button id="sidebar-scrim" type="button" aria-label="Cerrar menú lateral"></button>
+
+  <main id="main">
+    <header id="workspace-bar">
+      <div class="workspace-heading">
+        <button id="sidebar-toggle" class="icon-button" type="button" title="Abrir menú" aria-label="Abrir menú">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+        </button>
+        <svg class="workspace-glyph" viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M10 20h8m4 0h8M20 10v6m0 8v6"></path>
+          <circle cx="20" cy="20" r="4"></circle>
+          <circle cx="8" cy="20" r="2.5"></circle>
+          <circle cx="32" cy="20" r="2.5"></circle>
+          <circle cx="20" cy="8" r="2.5"></circle>
+          <circle cx="20" cy="32" r="2.5"></circle>
+        </svg>
+        <div>
+          <span id="workspace-project" class="eyebrow">Espacio de estudio</span>
+          <h2 id="workspace-chat">Selecciona un chat</h2>
+        </div>
+      </div>
+      <div class="workspace-status"><span></span> Sesión local</div>
+    </header>
+
+    <div id="board">
+      <div id="board-inner">
+        <svg id="wires" aria-hidden="true"></svg>
+        <div id="thread"></div>
+        <div id="gutter"></div>
+      </div>
+    </div>
+
+    <form id="composer" hidden>
+      <textarea id="composer-input" rows="1" placeholder="Pídele que te explique el material… (Enter para enviar, Shift+Enter para salto de línea)"></textarea>
+      <button id="send" type="submit" title="Enviar" aria-label="Enviar mensaje">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-4.5 14-3.1-5.4L5 12Z"></path><path d="M11.4 13.6 19 5"></path></svg>
+      </button>
+    </form>
+    <div id="usage" hidden></div>
+  </main>
+</div>
+
+<div id="empty" class="overlay">
+  <div class="empty-card">
+    <div class="empty-visual" aria-hidden="true">
+      <svg viewBox="0 0 150 110">
+        <defs>
+          <linearGradient id="empty-gradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#56a8ff"></stop><stop offset=".52" stop-color="#d759ff"></stop><stop offset="1" stop-color="#ff914d"></stop>
+          </linearGradient>
+        </defs>
+        <path class="empty-line line-one" d="M24 72C45 72 42 34 68 34s21 42 52 42" fill="none" stroke="url(#empty-gradient)" stroke-width="2"></path>
+        <path class="empty-line line-two" d="M68 34c20 0 20-18 40-18" fill="none" stroke="url(#empty-gradient)" stroke-width="2"></path>
+        <circle cx="24" cy="72" r="8" fill="#58a6ff"></circle>
+        <circle cx="68" cy="34" r="10" fill="#c45cff"></circle>
+        <circle cx="120" cy="76" r="8" fill="#ff8a45"></circle>
+        <circle cx="108" cy="16" r="6" fill="#fff"></circle>
+      </svg>
+    </div>
+    <span class="empty-kicker">Tu mapa de conocimiento</span>
+    <h2>Crea un proyecto para empezar</h2>
+    <p>Un proyecto es una carpeta con tus PDFs. Claude Code los lee directamente desde ahí.</p>
+    <button id="empty-new" class="primary"><span>Nuevo proyecto</span><b aria-hidden="true">＋</b></button>
+  </div>
+</div>
+
+<div id="study-modal" class="modal-layer" hidden>
+  <section class="modal-card study-modal-card" role="dialog" aria-modal="true" aria-labelledby="study-title">
+    <button id="study-close" class="modal-close" type="button" aria-label="Cerrar">×</button>
+    <span class="modal-kicker">Sesión independiente</span>
+    <h2 id="study-title">Preparar modo estudio</h2>
+    <p id="study-description">Crearemos una actividad usando el chat, tus dudas y el material seleccionado.</p>
+    <div class="study-mode-picker" role="radiogroup" aria-label="Tipo de actividad">
+      <button type="button" data-mode="flashcards" role="radio"><b>Flashcards</b><span>Pregunta y respuesta</span></button>
+      <button type="button" data-mode="quiz" role="radio"><b>Quiz</b><span>Una pregunta cada vez</span></button>
+      <button type="button" data-mode="exam" role="radio"><b>Examen</b><span>Corrección al final</span></button>
+    </div>
+    <label class="study-amount">
+      <span>Número de tarjetas o preguntas</span>
+      <select id="study-amount">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+      </select>
+    </label>
+    <div class="modal-actions">
+      <button id="study-cancel" type="button" class="ghost">Cancelar</button>
+      <button id="study-start" type="button" class="primary">Crear sesión de estudio</button>
+    </div>
+  </section>
+</div>
+
+<div id="file-preview" class="modal-layer preview-layer" hidden>
+  <section class="modal-card preview-card" role="dialog" aria-modal="true" aria-labelledby="preview-title">
+    <header>
+      <div>
+        <span class="modal-kicker">Material del proyecto</span>
+        <h2 id="preview-title">Documento</h2>
+        <small id="preview-meta"></small>
+      </div>
+      <div class="preview-actions">
+        <a id="preview-open" class="preview-open" target="_blank" rel="noopener">Abrir aparte</a>
+        <button id="preview-close" class="modal-close" type="button" aria-label="Cerrar">×</button>
+      </div>
+    </header>
+    <div id="preview-body" class="preview-body"></div>
+  </section>
+</div>
+
+<div id="code-lab" class="modal-layer lab-layer" hidden>
+  <section class="modal-card lab-card" role="dialog" aria-modal="true" aria-labelledby="lab-title">
+    <header class="lab-header">
+      <div class="lab-heading">
+        <span class="lab-logo" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="m12 8-7 8 7 8M20 8l7 8-7 8M18 5l-4 22"></path></svg>
+        </span>
+        <div>
+          <span class="modal-kicker">Campo de pruebas local</span>
+          <h2 id="lab-title">Laboratorio de código</h2>
+        </div>
+      </div>
+      <div class="lab-header-actions">
+        <span id="lab-runtime-status"><i></i> Detectando runtimes…</span>
+        <button id="lab-close" class="modal-close" type="button" aria-label="Cerrar">×</button>
+      </div>
+    </header>
+
+    <div class="lab-toolbar">
+      <label>
+        <span>Lenguaje</span>
+        <select id="lab-language" aria-label="Lenguaje de programación"></select>
+      </label>
+      <button id="lab-example" type="button" class="lab-tool-button">Cargar ejemplo</button>
+      <button id="lab-clear" type="button" class="lab-tool-button">Limpiar</button>
+      <span class="lab-shortcut">Ctrl + Enter para ejecutar</span>
+      <button id="lab-run" type="button" class="primary">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 9 6-9 6Z"></path></svg>
+        <span>Ejecutar</span>
+      </button>
+    </div>
+
+    <div class="lab-workspace">
+      <section class="code-panel">
+        <header><span>main<span id="lab-extension">.py</span></span><small id="lab-code-size">0 caracteres</small></header>
+        <div class="code-editor-wrap">
+          <pre id="lab-lines" aria-hidden="true">1</pre>
+          <textarea id="lab-code" aria-label="Editor de código" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+        </div>
+      </section>
+
+      <section class="lab-io">
+        <div class="stdin-panel">
+          <header><span>Entrada estándar</span><small>stdin</small></header>
+          <textarea id="lab-stdin" placeholder="Datos que recibirá el programa, por ejemplo:\n5\n10" spellcheck="false"></textarea>
+        </div>
+        <div class="terminal-panel">
+          <header>
+            <span><i></i> Consola</span>
+            <small id="lab-result-meta">Lista para ejecutar</small>
+          </header>
+          <pre id="lab-output"><span class="terminal-hint">La salida del programa aparecerá aquí.</span></pre>
+        </div>
+      </section>
+    </div>
+
+    <footer class="lab-footer">
+      <span><b>Entorno temporal:</b> los archivos se eliminan después de cada ejecución.</span>
+      <span class="lab-safety">Tiempo máximo 10 s · salida máxima 64 KB · sin aislamiento Docker</span>
+    </footer>
+  </section>
+</div>
+
+<button id="ask-button" hidden>Preguntar</button>
+
+<div id="ask-popover" hidden>
+  <div class="quote" id="ask-quote"></div>
+  <textarea id="ask-input" rows="2" placeholder="¿Qué no has entendido?"></textarea>
+  <div class="ask-actions">
+    <span class="hint">Enter para abrir el nodo</span>
+    <button id="ask-cancel" class="ghost">Cancelar</button>
+    <button id="ask-send" class="primary">Abrir nodo</button>
+  </div>
+</div>
+
+<div id="drop-hint" hidden>
+  <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 31V10m0 0-8 8m8-8 8 8M10 29v7a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4v-7"></path></svg>
+  <span>Suelta los archivos para añadirlos al proyecto</span>
+</div>
+<div id="toast" hidden></div>
+
+<input type="file" id="file-input" multiple hidden>
+
+<script src="/static/math.js"></script>
+<script src="/static/markdown.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
