@@ -1,0 +1,51 @@
+#!/bin/bash
+# Lanzador de ChatNodes: arranca el servidor en segundo plano (si no lo está
+# ya) y abre el navegador. Pensado para ejecutarse con doble clic desde Finder.
+
+set -u
+
+APPDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+HOST="127.0.0.1"
+PORT="8765"
+URL="http://${HOST}:${PORT}/"
+LOGFILE="${APPDIR}/chatnodes.log"
+
+cd "$APPDIR" || exit 1
+
+PYTHON="$(command -v python3 || true)"
+if [ -z "$PYTHON" ]; then
+    osascript -e 'display alert "ChatNodes" message "No se encontró python3 en el PATH. Instálalo o revisa tu configuración." as critical'
+    exit 1
+fi
+
+# Apps lanzadas por Finder/LaunchServices arrancan bajo Rosetta aunque el Mac
+# sea Apple Silicon (y "uname -m" dentro de un proceso ya traducido sigue
+# reportando x86_64), así que miramos el hardware real con sysctl y forzamos
+# arm64 nativo si toca (evita fallos de import como pydantic_core, arm64-only).
+if [ "$(sysctl -n hw.optional.arm64 2>/dev/null)" = "1" ]; then
+    PYTHON_CMD=(arch -arm64 "$PYTHON")
+else
+    PYTHON_CMD=("$PYTHON")
+fi
+
+# ¿Ya hay un servidor corriendo? Si es así, solo abrimos el navegador.
+if curl -s -o /dev/null --max-time 1 "$URL"; then
+    open "$URL"
+    exit 0
+fi
+
+nohup "${PYTHON_CMD[@]}" -m chatnodes >> "$LOGFILE" 2>&1 &
+disown
+
+# Esperamos a que el servidor responda antes de salir, para poder avisar
+# si algo falla nada más arrancar (el propio proceso abre el navegador).
+for _ in $(seq 1 30); do
+    if curl -s -o /dev/null --max-time 1 "$URL"; then
+        exit 0
+    fi
+    sleep 0.5
+done
+
+TAIL="$(tail -n 20 "$LOGFILE" 2>/dev/null)"
+osascript -e "display alert \"ChatNodes\" message \"El servidor no arrancó a tiempo. Últimas líneas del log:\n\n${TAIL//\"/\\\"}\" as critical"
+exit 1

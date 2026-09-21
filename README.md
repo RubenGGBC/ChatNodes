@@ -86,7 +86,7 @@ completo.
 En el lateral, por proyecto: **modelo** (Sonnet / Opus / Haiku) e **instrucciones** propias
 (por ejemplo, tu curso o cómo prefieres los ejemplos).
 
-Claude Code se invoca en modo solo lectura (`--restricted`, únicamente `Read`, `Glob` y
+Claude Code se invoca en modo solo lectura (`--allowed-tools` limitado a `Read`, `Glob` y
 `Grep`, sin diálogos de permisos), así que no puede modificar nada de tu equipo.
 
 ## Dónde se guardan los datos

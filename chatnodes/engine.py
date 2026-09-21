@@ -90,9 +90,8 @@ class ClaudeEngine:
             "--output-format", "stream-json",
             "--include-partial-messages",
             "--verbose",
-            "--restricted",
             "--allowed-tools", ALLOWED_TOOLS,
-            "--permission-prompts", "none",
+            "--permission-mode", "dontAsk",
             "--disable-slash-commands",
         ]
         if resume:

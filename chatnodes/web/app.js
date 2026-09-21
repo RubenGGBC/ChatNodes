@@ -926,21 +926,32 @@ async function runLabCode() {
 
 /* ---------- envio de turnos ---------- */
 
+// Repintar el markdown entero en cada frame de pantalla (hasta 120 Hz en
+// paneles ProMotion) es cuadratico: el texto acumulado crece con la
+// respuesta y se vuelve a parsear entero cada vez. Limitar el repintado a un
+// ritmo fijo (aunque lleguen deltas mas rapido) evita que una respuesta larga
+// deje un nucleo de CPU al 100% durante todo el streaming.
+const STREAM_PAINT_INTERVAL_MS = 80;
 let renderQueued = false;
+let lastPaintAt = 0;
 function scheduleStreamPaint(messageId) {
   pendingPaints.add(messageId);
   if (renderQueued) return;
   renderQueued = true;
-  requestAnimationFrame(() => {
-    renderQueued = false;
-    for (const id of pendingPaints) {
-      const md = mdOf(id);
-      const message = messageById(id);
-      if (md && message) md.innerHTML = window.renderMarkdown(message.content || "");
-    }
-    pendingPaints.clear();
-    layout();
-  });
+  const wait = Math.max(0, STREAM_PAINT_INTERVAL_MS - (performance.now() - lastPaintAt));
+  setTimeout(() => {
+    requestAnimationFrame(() => {
+      renderQueued = false;
+      lastPaintAt = performance.now();
+      for (const id of pendingPaints) {
+        const md = mdOf(id);
+        const message = messageById(id);
+        if (md && message) md.innerHTML = window.renderMarkdown(message.content || "");
+      }
+      pendingPaints.clear();
+      layout();
+    });
+  }, wait);
 }
 const pendingPaints = new Set();
 

@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+import shutil
+import subprocess
 
 import pytest
 
 from chatnodes import engine as engine_mod
-from chatnodes.engine import ClaudeEngine, Chunk, translate
+from chatnodes.engine import ClaudeEngine, Chunk, new_session_id, translate
 
 
 def collect(agen):
@@ -85,10 +87,26 @@ def test_argv_turno_siguiente_reanuda_y_no_crea_sesion(tmp_path):
 def test_argv_es_de_solo_lectura_y_no_pide_permisos(tmp_path):
     cli = ClaudeEngine(cli=str(_fake_bin(tmp_path)))
     argv = cli.build_argv()
-    assert "--restricted" in argv
     assert argv[argv.index("--allowed-tools") + 1] == "Read Glob Grep"
-    assert argv[argv.index("--permission-prompts") + 1] == "none"
+    assert argv[argv.index("--permission-mode") + 1] == "dontAsk"
     assert "--verbose" in argv  # stream-json lo exige
+
+
+def test_argv_solo_usa_flags_que_el_cli_real_reconoce():
+    """build_argv() se probaba solo contra un binario falso (ver _fake_bin),
+    asi que un flag inventado (p.ej. el extinto --restricted) pasaba el test
+    sin que nadie lo notara hasta ejecutar el tutor de verdad."""
+    real_cli = shutil.which("claude")
+    if not real_cli:
+        pytest.skip("claude no esta en el PATH")
+    help_text = subprocess.run(
+        [real_cli, "--help"], capture_output=True, text=True, timeout=10
+    ).stdout
+    cli = ClaudeEngine(cli=real_cli)
+    argv = cli.build_argv(session_id=new_session_id())
+    flags = [a for a in argv if a.startswith("--")]
+    faltantes = [f for f in flags if f not in help_text]
+    assert not faltantes, f"flags no reconocidos por `claude --help`: {faltantes}"
 
 
 def _fake_bin(tmp_path):

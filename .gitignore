@@ -6,3 +6,4 @@ venv/
 *.db
 node_modules/
 .env
+chatnodes.log
